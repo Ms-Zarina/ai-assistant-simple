@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Опросник базы знаний Simple Čeština</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&family=Unbounded:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky section index on the left, long single-column form on the right; phone shows a progress bar only. */
+:root {
+  --bg: #f2f4f7;
+  --surface: #ffffff;
+  --surface-2: #e9edf3;
+  --ink: #15202b;
+  --muted: #566475;
+  --line: #d3dae4;
+  --accent: #1f4e8c;
+  --accent-ink: #ffffff;
+  --accent-soft: #dde8f6;
+  --ok: #17734a;
+  --ok-soft: #dcf1e5;
+  --fix: #9a5b00;
+  --fix-soft: #fbebcc;
+  --unk: #a3262b;
+  --unk-soft: #f9dddd;
+  --font-body: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Unbounded", "Onest", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f151c; --surface: #172029; --surface-2: #1e2a36; --ink: #e6ecf3; --muted: #9aa8b8;
+    --line: #2b3a49; --accent: #7fb0ee; --accent-ink: #0b1622; --accent-soft: #1c2f47;
+    --ok: #5cc994; --ok-soft: #16362a; --fix: #e9b25a; --fix-soft: #3a2d12; --unk: #ee8d90; --unk-soft: #3c1b1d;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f151c; --surface: #172029; --surface-2: #1e2a36; --ink: #e6ecf3; --muted: #9aa8b8;
+  --line: #2b3a49; --accent: #7fb0ee; --accent-ink: #0b1622; --accent-soft: #1c2f47;
+  --ok: #5cc994; --ok-soft: #16362a; --fix: #e9b25a; --fix-soft: #3a2d12; --unk: #ee8d90; --unk-soft: #3c1b1d;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { color-scheme: light; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.55; padding-inline: 16px; padding-block: 0 64px; }
+button, input, textarea, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 10px; margin-inline: -16px; padding-inline: 16px; border-bottom: 1px solid var(--line); }
+.topbar-in { max-width: 1120px; margin-inline: auto; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.brand { font-family: var(--font-display); font-weight: 600; font-size: 13px; letter-spacing: .02em; }
+.bar { flex: 1 1 160px; height: 8px; background: var(--surface-2); border-radius: 99px; overflow: hidden; min-width: 120px; }
+.bar > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .3s; }
+.topstat { font-family: var(--font-mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+.wrap { max-width: 1120px; margin-inline: auto; display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 40px; padding-top: 32px; }
+.side { position: sticky; top: calc(64px + env(safe-area-inset-top, 0px)); align-self: start; max-height: calc(100vh - 90px); overflow-y: auto; }
+.side h2 { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; font-weight: 600; }
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav button { text-align: left; background: none; border: 0; padding: 7px 10px; border-radius: 6px; cursor: pointer; display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 13.5px; }
+.nav button:hover { background: var(--surface-2); color: var(--ink); }
+.nav button.on { background: var(--accent-soft); color: var(--ink); }
+.nav .cnt { font-family: var(--font-mono); font-size: 11.5px; flex: none; }
+.nav .full .cnt { color: var(--ok); }
+
+main { min-width: 0; display: flex; flex-direction: column; gap: 48px; }
+.hero h1 { font-family: var(--font-display); font-weight: 600; font-size: clamp(24px, 4.2vw, 38px); line-height: 1.15; margin: 0 0 16px; text-wrap: balance; }
+.hero p { max-width: 64ch; margin: 0 0 12px; color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; padding: 3px 10px; border-radius: 99px; background: var(--surface-2); }
+.pill.crit, .tag-crit { background: var(--unk-soft); color: var(--unk); }
+.how { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; margin-top: 20px; max-width: 70ch; }
+.how b { font-weight: 600; }
+.how ol { margin: 8px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+
+section.sec { display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 80px; }
+.sec-head { display: flex; flex-direction: column; gap: 6px; padding-bottom: 6px; border-bottom: 2px solid var(--ink); }
+.sec-head h2 { font-family: var(--font-display); font-weight: 600; font-size: clamp(18px, 2.6vw, 23px); margin: 0; text-wrap: balance; }
+.sec-head p { margin: 0; color: var(--muted); max-width: 70ch; }
+
+.item { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.item.done { border-color: color-mix(in srgb, var(--ok) 45%, var(--line)); }
+.q { font-weight: 600; margin: 0; }
+.hint { color: var(--muted); font-size: 13.5px; margin: 0; max-width: 72ch; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tag { font-family: var(--font-mono); font-size: 11px; padding: 2px 8px; border-radius: 4px; background: var(--surface-2); color: var(--muted); }
+.tag-crit { font-family: var(--font-mono); font-size: 11px; padding: 2px 8px; border-radius: 4px; }
+.val { margin: 0; padding: 10px 12px; background: var(--accent-soft); border-radius: 8px; white-space: pre-line; overflow-wrap: anywhere; }
+.warn { margin: 0; padding: 8px 12px; background: var(--fix-soft); color: var(--fix); border-radius: 8px; font-size: 13.5px; }
+
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button, .chip { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 14px; cursor: pointer; font-size: 14px; }
+.seg button:hover, .chip:hover { border-color: var(--accent); }
+.seg button[aria-pressed="true"][data-v="ok"] { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); font-weight: 600; }
+.seg button[aria-pressed="true"][data-v="fix"] { background: var(--fix-soft); border-color: var(--fix); color: var(--fix); font-weight: 600; }
+.seg button[aria-pressed="true"][data-v="unk"] { background: var(--unk-soft); border-color: var(--unk); color: var(--unk); font-weight: 600; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+input[type=text], textarea, select { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 9px 12px; min-width: 0; }
+textarea { min-height: 84px; resize: vertical; }
+input[type=text]:focus, textarea:focus { border-color: var(--accent); }
+.cmt[hidden] { display: none; }
+.cmt label { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 4px; }
+
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+.tbl table { border-collapse: collapse; width: 100%; min-width: 620px; }
+.tbl th { font-size: 12px; text-align: left; font-weight: 600; color: var(--muted); padding: 8px; background: var(--surface-2); }
+.tbl td { padding: 4px; border-top: 1px solid var(--line); }
+.tbl td:first-child { padding: 8px; font-weight: 500; min-width: 190px; }
+.tbl input { border-radius: 6px; padding: 6px 8px; }
+
+.final { background: var(--surface); border: 2px solid var(--accent); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.btn { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 8px; padding: 10px 18px; cursor: pointer; font-weight: 600; }
+.btn.ghost { background: var(--surface-2); color: var(--ink); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; }
+.out { font-family: var(--font-mono); font-size: 12.5px; min-height: 260px; }
+.status { font-size: 13px; color: var(--muted); }
+.setup-section { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; margin-bottom: 16px; }
+.setup-section label { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+.setup-section input { margin-bottom: 8px; }
+
+@media (max-width: 820px) {
+  .wrap { grid-template-columns: minmax(0, 1fr); gap: 0; padding-top: 20px; }
+  .side { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .bar > i { transition: none; } }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="topbar-in">
+  <span class="brand">Simple Čeština · база знаний</span>
+  <div class="bar" role="progressbar" aria-label="Заполнено" aria-valuemin="0" aria-valuemax="100" id="pbar"><i id="pfill"></i></div>
+  <span class="topstat" id="pstat">0 из 0</span>
+</div></div>
+
+<div class="wrap">
+  <aside class="side"><h2>Разделы</h2><nav class="nav" id="nav"></nav></aside>
+  <main>
+    <header class="hero">
+      <h1>Утверждение базы знаний ИИ-консультанта Simple Čeština</h1>
+      <p>ИИ-консультант будет отвечать клиентам в Instagram Direct только тем, что вы подтвердите здесь. Форма короткая: нужно решить, где будет жить база знаний и как вы будете её обновлять, и ответить на несколько вопросов по работе агента.</p>
+      <div class="how">
+        <b>Как заполнять</b>
+        <ol>
+          <li>Если вопрос вас не касается, напишите «нет». Пустой ответ мы считаем пропуском.</li>
+          <li>Форма сохраняется в этом браузере сама, можно закрыть и вернуться позже.</li>
+          <li>В конце нажмите «Отправить в Google Sheets» — ответы попадут в таблицу автоматически.</li>
+        </ol>
+      </div>
+    </header>
+    <div id="sections" style="display:flex;flex-direction:column;gap:48px"></div>
+    <section class="sec" id="final">
+      <div class="sec-head"><h2>Отправка результатов</h2><p>Нужно один раз настроить Google Apps Script.</p></div>
+      
+      <div class="setup-section">
+        <label for="scriptUrl">URL Google Apps Script (получишь из INTEGRATION_GUIDE.md):</label>
+        <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/XXXXX/usercontent" value="https://script.google.com/macros/s/AKfycbwngoN62GNTodFfNjkRnYxIRuQpMgvfdKagrr-EAqyNEf7r66ZvvbT_4o5_I6gM5nFA/exec">
+        <p class="hint" style="font-size: 12px; color: var(--muted); margin-top: 8px;">✅ URL уже заполнен, форма готова к отправке!</p>
+      </div>
+
+      <div class="final">
+        <div class="status" id="unans"></div>
+        <div class="row">
+          <button class="btn" id="build" type="button">Собрать ответы</button>
+          <button class="btn ghost" id="copy" type="button">Скопировать</button>
+          <button class="btn" id="send" type="button">Отправить в Google Sheets</button>
+          <button class="btn ghost" id="reset" type="button">Очистить форму</button>
+        </div>
+        <div class="status" id="resetmsg" hidden>Нажмите «Очистить форму» ещё раз в течение 5 секунд, чтобы стереть все ответы.</div>
+        <textarea class="out" id="out" aria-label="Итоговый текст ответов" placeholder="Здесь появится текст ответов"></textarea>
+        <div class="status" id="copystat"></div>
+        <div class="status" id="sendstat"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+var C = function (id, q, val, src, o) { return Object.assign({ t: 'confirm', id: id, q: q, val: val, src: src }, o || {}); };
+var T = function (id, q, o) { return Object.assign({ t: 'text', id: id, q: q }, o || {}); };
+var A = function (id, q, o) { return Object.assign({ t: 'area', id: id, q: q }, o || {}); };
+var Ch = function (id, q, opts, o) { return Object.assign({ t: 'choice', id: id, q: q, opts: opts }, o || {}); };
+var M = function (id, q, opts, o) { return Object.assign({ t: 'multi', id: id, q: q, opts: opts }, o || {}); };
+
+var SECTIONS = [
+{ id: 'kb', title: 'База знаний: где она живёт и как обновляется', intro: 'Агент отвечает клиентам только по базе знаний. В неё войдёт таблица со всеми продуктами школы: названия, цены, форматы, расписание и условия. Нужно договориться, где она будет лежать и как правки попадают к агенту.', items: [
+  Ch('kb_where', 'Где вам удобнее вести информацию о курсах, ценах и расписании?', ['Google Таблица для цен и расписания и Google Документ для описаний и ответов на вопросы', 'Только Google Документ', 'Не хотим вести сами, будем присылать изменения сообщением', 'Другое (напишите ниже)'], { hint: 'С таблицей быстрее всего: вы меняете цену, и агент отвечает по новой через несколько минут. Доступ к ней будет только у вас и у разработчика.' }),
+  Ch('kb_site', 'Сайт simpla.cz: может ли агент брать информацию с него?', ['Да, сайт актуален, агент берёт данные с сайта и из таблицы', 'Часть данных на сайте устарела (напишите какая)', 'Нет, только таблица'], { hint: 'На сайте уже есть курсы, цены «от», адрес, часы работы и условия оплаты и возврата (раздел «Общие условия»). Их можно взять за основу базы знаний, а в таблице оставить только то, что меняется.' }),
+  A('kb_conflict', 'Расхождения между сайтом и ответами менеджера: что верно?', { hint: 'Размер группы: в Direct «4–7 человек», на сайте «до 8». Длительность B1: в Direct 3 месяца, на сайте B1/B2 4 месяца. Цена онлайн B1: в Direct 12 240 Kč за курс при 3 600 Kč в месяц и скидке 15% (по расчёту должно быть 9 180 Kč). Курс за 499 Kč из рекламной воронки на сайте не нашли. Сертификат школы в Direct, а на сайте написано, что сертификационные экзамены в цену не входят.' }),
+  M('kb_scope', 'Какие направления агент обсуждает с клиентами в Instagram?', ['Чешский для взрослых', 'Чешский для детей и подготовка к школе', 'Подготовка к CERMAT', 'Английский', 'IT-курсы за счёт Úřad práce', 'Подготовка к визе и экзаменам на гражданство', 'Детский лагерь', 'Магазин и дополнительные услуги'], { hint: 'На сайте у школы больше направлений, чем в ваших цепочках и переписках. Отметьте те, по которым агент должен консультировать сам, остальные он передаст менеджеру.' }),
+  T('kb_owner', 'Кто у вас заполнит таблицу продуктов и будет её обновлять, и к какому сроку она может быть готова?', { ph: 'Имя, контакт, срок' }),
+  Ch('kb_urgent', 'Как сообщать срочное изменение (закончились места, поменялась цена, группа отменена)?', ['Правлю сам в таблице, агент подхватит', 'Пишу разработчику в мессенджер', 'Пишет менеджер'], { hint: 'Без этого агент может назвать клиенту место, которого уже нет.' }),
+  Ch('kb_unknown', 'Если агент не знает ответа, что он делает?', ['Говорит, что уточнит у менеджера, и записывает вопрос в список для обновления базы', 'Сразу просит номер телефона для связи с менеджером', 'Другое (напишите ниже)'], { hint: 'Вопросы без ответа будут собираться в таблицу, чтобы вы видели, чего не хватает в базе.' })
+]},
+{ id: 'rules', title: 'Чего агент не обещает', intro: 'Условия оплаты, пропусков и возврата возьмём с сайта (раздел «Общие условия»).', items: [
+  A('r_never', 'Что агенту нельзя обещать ни при каких условиях?', { hint: 'Например: гарантию сдачи экзамена, срок до B1, скидки вне правил. На сайте указано, что 98% учеников сдают экзамены с первого раза: можно ли агенту называть эту цифру?' })
+]},
+{ id: 'handoff', title: 'Заявка и передача менеджеру', intro: 'Как агент берёт контакт и в каких случаях уступает диалог человеку.', items: [
+  T('h_mgr', 'Имя менеджера, рабочие часы и как быстро он реально связывается с клиентом', { ph: 'Например: Мария, пн–пт 10–19, в течение часа', hint: 'На сайте указано: пн–пт 10:00–19:00, сб–вс 10:00–15:00. Это часы работы менеджера? Агент будет обещать клиенту ровно этот срок связи.' }),
+  T('h_notify', 'Куда присылать менеджеру уведомление о новой заявке?', { ph: 'Telegram, email или таблица' }),
+  A('h_night', 'Что агент говорит клиенту ночью и в выходные, когда менеджер недоступен?', { hint: 'Например: «Менеджер свяжется с вами в понедельник с 9:00».' }),
+  M('h_handoff', 'В каких случаях агент сразу передаёт диалог человеку?', ['Жалоба или недовольство', 'Возврат денег или спор по оплате', 'Просьба о скидке вне правил', 'Вопросы про визу и документы', 'Особенности ребёнка (здоровье, обучение)', 'Корпоративное обучение', 'Клиент просит живого человека', 'Пишет текущий ученик', 'Вопросы по IT-курсам и участию Úřad práce']),
+]},
+{ id: 'ig', title: 'Instagram и ManyChat', intro: 'Решения, от которых зависит, как мы перестроим цепочки.', items: [
+  Ch('ig_plan', 'Что делаем с текущими цепочками ManyChat (курс за 499 Kč, меню «для себя, для ребёнка, CERMAT», гайд «Чеська для роботи»)?', ['Оставляем, агент включается после того, как человек ответил или оставил номер', 'Перестраиваем вместе, обсудим на созвоне'], { hint: 'Цепочки уже приносят заявки, например у воронки с курсом 499 Kč 11 ответов из 31 сообщения.' }),
+  Ch('ig_price', 'Называть ли цену в переписке?', ['Да, агент называет цену вместе с форматом, как менеджер сейчас', 'Нет, цену называет менеджер после получения контакта'], { hint: 'Сейчас в ManyChat кнопки «Вартість» и «Розклад» ведут к просьбе номера, а менеджер в личной переписке называет цену сразу.' }),
+  M('ig_access', 'Кто даст доступы разработчику?', ['Администратор Instagram и Meta Business', 'ManyChat', 'Google-аккаунт для базы знаний и таблицы контактов', 'Обсудим отдельно'])
+]},
+{ id: 'tone', title: 'Как агент говорит с клиентами', intro: 'Три решения, остальное мы возьмём из реальных переписок менеджера.', items: [
+  Ch('t_brand', 'Как агент называет школу?', ['Simple Čeština (как в Instagram)', 'Simple Academy (как на сайте)', 'Simple, без уточнения']),
+  Ch('t_bot', 'Что отвечать, если клиент спрашивает: «Это бот?»', ['Честно сказать, что это виртуальный помощник школы, и предложить менеджера', 'Передать вопрос менеджеру, не отвечая', 'Другое (напишите ниже)'], { hint: 'В ЕС действуют требования к прозрачности для чатов с ИИ, поэтому мы рекомендуем первый вариант.' }),
+]},
+{ id: 'ok', title: 'Подтверждение', intro: 'После проверки отметьте пункты и поставьте имя. Это даёт разработчику право запускать агента на этой базе.', items: [
+  M('ok_check', 'Подтверждаю', ['Мы заполним таблицу базы знаний (продукты, цены, расписание) и отвечаем за её актуальность', 'Агент называет клиентам только эти данные, а на остальное передаёт менеджеру', 'Об изменениях цен и условий мы сообщаем так, как указано в разделе «База знаний»']),
+  T('ok_name', 'Имя того, кто утверждает', { ph: 'Имя и должность' }),
+]}
+];
+
+var KEY = 'simple-kb-form-v1';
+var S = {};
+try { S = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { S = {}; }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+var CONF = { ok: 'Верно', fix: 'Нужно исправить', unk: 'Не знаю, уточню' };
+function meta(it) {
+  return '';
+}
+function render(it) {
+  var h = '<div class="item" id="it_' + it.id + '" data-id="' + it.id + '">' + meta(it) + '<p class="q">' + esc(it.q) + '</p>';
+  if (it.hint) h += '<p class="hint">' + esc(it.hint) + '</p>';
+  var v = S[it.id];
+  if (it.t === 'confirm') {
+    var cur = (v && v.s) || '';
+    h += '<p class="val">' + esc(it.val) + '</p>';
+    if (it.warn) h += '<p class="warn">' + esc(it.warn) + '</p>';
+    h += '<div class="seg" role="group" aria-label="Оценка утверждения">';
+    Object.keys(CONF).forEach(function (k) { h += '<button type="button" data-act="conf" data-v="' + k + '" aria-pressed="' + (cur === k) + '">' + CONF[k] + '</button>'; });
+    h += '</div><div class="cmt" data-cmt ' + (cur === 'fix' || cur === 'unk' ? '' : 'hidden') + '><label for="c_' + it.id + '">' + (cur === 'unk' ? 'Кто может знать и когда уточните' : 'Как правильно') + '</label><textarea id="c_' + it.id + '" data-act="ctext">' + esc((v && v.c) || '') + '</textarea></div>';
+  } else if (it.t === 'text') {
+    h += '<input type="text" id="f_' + it.id + '" data-act="text" placeholder="' + esc(it.ph || '') + '" value="' + esc(v || '') + '">';
+  } else if (it.t === 'area') {
+    h += '<textarea id="f_' + it.id + '" data-act="text" placeholder="' + esc(it.ph || '') + '">' + esc(v || '') + '</textarea>';
+  } else if (it.t === 'choice') {
+    h += '<div class="chips" role="group">';
+    it.opts.forEach(function (o, i) { h += '<button type="button" class="chip" data-act="choice" data-i="' + i + '" aria-pressed="' + (v === o) + '">' + esc(o) + '</button>'; });
+    h += '</div><input type="text" id="n_' + it.id + '" data-act="note" placeholder="Уточнение или свой вариант" value="' + esc(S[it.id + '_n'] || '') + '">';
+  } else if (it.t === 'multi') {
+    var arr = Array.isArray(v) ? v : [];
+    h += '<div class="chips" role="group">';
+    it.opts.forEach(function (o, i) { h += '<button type="button" class="chip" data-act="multi" data-i="' + i + '" aria-pressed="' + (arr.indexOf(o) > -1) + '">' + esc(o) + '</button>'; });
+    h += '</div><input type="text" id="n_' + it.id + '" data-act="note" placeholder="Добавить своё или уточнить" value="' + esc(S[it.id + '_n'] || '') + '">';
+  } else if (it.t === 'table') {
+    h += '<div class="tbl"><table><thead><tr><th></th>' + it.cols.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>';
+    it.rows.forEach(function (r, ri) {
+      h += '<tr><td>' + esc(r) + '</td>';
+      it.cols.forEach(function (c, ci) { var k = it.id + '|' + ri + '|' + ci; h += '<td><input type="text" data-act="cell" data-k="' + k + '" aria-label="' + esc(r + ', ' + c) + '" value="' + esc(S[k] || '') + '"></td>'; });
+      h += '</tr>';
+    });
+    h += '</tbody></table></div>';
+  }
+  return h + '</div>';
+}
+function find(id) { for (var i = 0; i < SECTIONS.length; i++) for (var j = 0; j < SECTIONS[i].items.length; j++) if (SECTIONS[i].items[j].id === id) return SECTIONS[i].items[j]; }
+function answered(it) {
+  var v = S[it.id];
+  if (it.t === 'confirm') return !!(v && v.s);
+  if (it.t === 'multi') return Array.isArray(v) && v.length > 0;
+  if (it.t === 'table') return Object.keys(S).some(function (k) { return k.indexOf(it.id + '|') === 0 && S[k]; });
+  return !!(v && String(v).trim());
+}
+function progress() {
+  var tot = 0, done = 0, ct = 0, cd = 0;
+  SECTIONS.forEach(function (s) {
+    var d = 0;
+    s.items.forEach(function (it) { var a = answered(it); tot++; if (a) { done++; d++; } if (it.p) { ct++; if (a) cd++; } var el = document.getElementById('it_' + it.id); if (el) el.classList.toggle('done', a); });
+    var b = document.querySelector('[data-nav="' + s.id + '"]');
+    if (b) { b.querySelector('.cnt').textContent = d + '/' + s.items.length; b.classList.toggle('full', d === s.items.length); }
+  });
+  var pct = Math.round(done / tot * 100);
+  document.getElementById('pfill').style.width = pct + '%';
+  document.getElementById('pbar').setAttribute('aria-valuenow', pct);
+  document.getElementById('pstat').textContent = done + ' из ' + tot;
+  document.getElementById('unans').textContent = 'Заполнено ' + done + ' из ' + tot + '.';
+}
+function build() {
+  var nav = document.getElementById('nav'), box = document.getElementById('sections');
+  SECTIONS.forEach(function (s) {
+    var b = document.createElement('button'); b.type = 'button'; b.setAttribute('data-nav', s.id);
+    b.innerHTML = '<span>' + esc(s.title) + '</span><span class="cnt"></span>';
+    b.onclick = function () { document.getElementById('s_' + s.id).scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    nav.appendChild(b);
+    var sec = document.createElement('section'); sec.className = 'sec'; sec.id = 's_' + s.id;
+    sec.innerHTML = '<div class="sec-head"><h2>' + esc(s.title) + '</h2>' + (s.intro ? '<p>' + esc(s.intro) + '</p>' : '') + '</div>' + s.items.map(render).join('');
+    box.appendChild(sec);
+  });
+  progress();
+}
+document.addEventListener('click', function (e) {
+  var b = e.target.closest('button[data-act]'); if (!b) return;
+  var item = b.closest('.item'), it = find(item.dataset.id), act = b.dataset.act;
+  if (act === 'conf') {
+    var cur = S[it.id] || {}; cur.s = b.dataset.v; S[it.id] = cur;
+    item.querySelectorAll('[data-act=conf]').forEach(function (x) { x.setAttribute('aria-pressed', x === b); });
+    var c = item.querySelector('[data-cmt]'); c.hidden = cur.s === 'ok';
+    c.querySelector('label').textContent = cur.s === 'unk' ? 'Кто может знать и когда уточните' : 'Как правильно';
+  } else if (act === 'choice') {
+    var o = it.opts[+b.dataset.i]; S[it.id] = S[it.id] === o ? '' : o;
+    item.querySelectorAll('[data-act=choice]').forEach(function (x) { x.setAttribute('aria-pressed', it.opts[+x.dataset.i] === S[it.id]); });
+  } else if (act === 'multi') {
+    var arr = Array.isArray(S[it.id]) ? S[it.id] : [], v = it.opts[+b.dataset.i], ix = arr.indexOf(v);
+    if (ix > -1) arr.splice(ix, 1); else arr.push(v);
+    S[it.id] = arr; b.setAttribute('aria-pressed', ix === -1);
+  }
+  save(); progress();
+});
+document.addEventListener('input', function (e) {
+  var t = e.target, act = t.dataset.act; if (!act) return;
+  var item = t.closest('.item'), id = item && item.dataset.id;
+  if (act === 'text') S[id] = t.value;
+  else if (act === 'note') S[id + '_n'] = t.value;
+  else if (act === 'cell') S[t.dataset.k] = t.value;
+  else if (act === 'ctext') { var cur = S[id] || {}; cur.c = t.value; S[id] = cur; }
+  save(); progress();
+});
+function compose() {
+  var L = ['ОТВЕТЫ ПО БАЗЕ ЗНАНИЙ SIMPLE ČEŠTINA', ''];
+  SECTIONS.forEach(function (s) {
+    L.push('== ' + s.title.toUpperCase() + ' ==');
+    s.items.forEach(function (it) {
+      var v = S[it.id], a = '';
+      if (it.t === 'confirm') {
+        a = v && v.s ? CONF[v.s] + (v.c ? ': ' + v.c : '') : '(нет ответа)';
+        L.push('- ' + it.q + (it.p ? ' [критично]' : '') + '\n  Было: ' + it.val.replace(/\n/g, ' ') + '\n  Ответ: ' + a);
+      } else if (it.t === 'table') {
+        var rows = [];
+        it.rows.forEach(function (r, ri) { var cells = it.cols.map(function (c, ci) { var x = S[it.id + '|' + ri + '|' + ci]; return x ? c + ' ' + x : ''; }).filter(Boolean); if (cells.length) rows.push('  ' + r + ': ' + cells.join('; ')); });
+        L.push('- ' + it.q + (it.p ? ' [критично]' : '') + '\n' + (rows.length ? rows.join('\n') : '  (нет ответа)'));
+      } else {
+        a = it.t === 'multi' ? (Array.isArray(v) && v.length ? v.join('; ') : '') : (v || '');
+        var n = S[it.id + '_n']; if (n) a += (a ? ' | ' : '') + n;
+        L.push('- ' + it.q + (it.p ? ' [критично]' : '') + '\n  Ответ: ' + (a || '(нет ответа)'));
+      }
+    });
+    L.push('');
+  });
+  return L.join('\n');
+}
+function composeJSON() {
+  var data = {
+    name: S['ok_name'] || 'Не указано',
+    email: '',
+    question: 'Ответы на опросник базы знаний',
+    category: 'knowledge-base-form',
+    answer: compose(),
+    priority: 'normal'
+  };
+  return data;
+}
+document.getElementById('build').onclick = function () { document.getElementById('out').value = compose(); document.getElementById('copystat').textContent = 'Текст собран. Нажмите «Скопировать».'; };
+document.getElementById('copy').onclick = function () {
+  var o = document.getElementById('out'); if (!o.value) o.value = compose();
+  var st = document.getElementById('copystat');
+  var fallback = function () { o.focus(); o.select(); st.textContent = 'Текст выделен. Нажмите Ctrl+C (на телефоне «Копировать»).'; };
+  try { navigator.clipboard.writeText(o.value).then(function () { st.textContent = 'Скопировано. Вставьте в сообщение нам.'; }, fallback); } catch (e) { fallback(); }
+};
+document.getElementById('send').onclick = function () {
+  var scriptUrl = document.getElementById('scriptUrl').value.trim();
+  var sendBtn = document.getElementById('send');
+  var sendStat = document.getElementById('sendstat');
+  
+  if (!scriptUrl) {
+    sendStat.textContent = '❌ Ошибка: укажите URL Google Apps Script!';
+    sendStat.style.color = 'var(--unk)';
+    return;
+  }
+  
+  sendBtn.disabled = true;
+  sendStat.textContent = '⏳ Отправляю...';
+  
+  var data = composeJSON();
+  
+  fetch(scriptUrl, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+  .then(function(response) { return response.json(); })
+  .then(function(result) {
+    if (result.status === 'success') {
+      sendStat.textContent = '✅ Успешно! Ответы отправлены в Google Sheets.';
+      sendStat.style.color = 'var(--ok)';
+    } else {
+      sendStat.textContent = '❌ Ошибка: ' + (result.message || 'неизвестная ошибка');
+      sendStat.style.color = 'var(--unk)';
+    }
+  })
+  .catch(function(error) {
+    sendStat.textContent = '❌ Ошибка сети: ' + error.message;
+    sendStat.style.color = 'var(--unk)';
+  })
+  .finally(function() {
+    sendBtn.disabled = false;
+  });
+};
+var rt;
+document.getElementById('reset').onclick = function () {
+  var m = document.getElementById('resetmsg');
+  if (m.hidden) { m.hidden = false; rt = setTimeout(function () { m.hidden = true; }, 5000); return; }
+  clearTimeout(rt); S = {}; save();
+  document.getElementById('sections').innerHTML = ''; document.getElementById('nav').innerHTML = '';
+  m.hidden = true; document.getElementById('out').value = ''; build();
+};
+build();
+</script>
+</body>
+</html>
