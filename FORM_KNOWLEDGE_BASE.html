@@ -147,17 +147,18 @@ input[type=text]:focus, textarea:focus { border-color: var(--accent); }
         <ol>
           <li>Если вопрос вас не касается, напишите «нет». Пустой ответ мы считаем пропуском.</li>
           <li>Форма сохраняется в этом браузере сама, можно закрыть и вернуться позже.</li>
-          <li>В конце нажмите «Собрать ответы», скопируйте текст и отправьте его разработчику.</li>
+          <li>В конце нажмите «Отправить ответы». Ответы попадут разработчику в таблицу.</li>
         </ol>
       </div>
     </header>
     <div id="sections" style="display:flex;flex-direction:column;gap:48px"></div>
     <section class="sec" id="final">
-      <div class="sec-head"><h2>Сбор ответов</h2><p>Соберите ответы в один текст, скопируйте его и отправьте разработчику.</p></div>
+      <div class="sec-head"><h2>Отправка ответов</h2><p id="finalhint">Нажмите «Отправить ответы». Их можно отправить повторно после правок, прежние ответы заменятся.</p></div>
       <div class="final">
         <div class="status" id="unans"></div>
         <div class="row">
-          <button class="btn" id="build" type="button">Собрать ответы</button>
+          <button class="btn" id="send" type="button" hidden>Отправить ответы</button>
+          <button class="btn ghost" id="build" type="button">Собрать текст</button>
           <button class="btn ghost" id="copy" type="button">Скопировать</button>
           <button class="btn ghost" id="reset" type="button">Очистить форму</button>
         </div>
@@ -210,6 +211,10 @@ var SECTIONS = [
 ]}
 ];
 
+/* Адрес веб-приложения Google Apps Script (из «Развернуть» → «Веб-приложение», заканчивается на /exec) и общий секрет.
+   Секрет должен совпадать со значением SECRET в Code.gs. Пока адрес пустой, кнопка «Отправить» скрыта, работает копирование текста. */
+var SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbxhq2cxCn2LYJVkfyWd_6c4yRQfvSckWHsxbPj1S4tMCLZ3dLyrcCPSklLXxHBDh3-1ug/exec';
+var SUBMIT_SECRET = 'smenite-menya';
 var KEY = 'simple-kb-form-v1';
 var S = {};
 try { S = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { S = {}; }
@@ -340,6 +345,44 @@ function compose() {
   });
   return L.join('\n');
 }
+function entries() {
+  var out = [];
+  SECTIONS.forEach(function (s) {
+    s.items.forEach(function (it) {
+      var v = S[it.id], a = '';
+      if (it.t === 'confirm') a = v && v.s ? CONF[v.s] + (v.c ? ': ' + v.c : '') : '';
+      else if (it.t === 'table') {
+        var rows = [];
+        it.rows.forEach(function (r, ri) { var cells = it.cols.map(function (c, ci) { var x = S[it.id + '|' + ri + '|' + ci]; return x ? c + ' ' + x : ''; }).filter(Boolean); if (cells.length) rows.push(r + ': ' + cells.join('; ')); });
+        a = rows.join('\n');
+      } else {
+        a = it.t === 'multi' ? (Array.isArray(v) && v.length ? v.join('; ') : '') : (v || '');
+        var n = S[it.id + '_n']; if (n) a += (a ? ' | ' : '') + n;
+      }
+      out.push({ section: s.title, q: it.q, a: a });
+    });
+  });
+  return out;
+}
+function submissionId() {
+  if (!S._sid) { S._sid = 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); save(); }
+  return S._sid;
+}
+if (SUBMIT_URL) document.getElementById('send').hidden = false;
+else document.getElementById('finalhint').textContent = 'Соберите ответы в текст, скопируйте его и отправьте разработчику.';
+document.getElementById('send').onclick = function () {
+  var btn = this, st = document.getElementById('copystat');
+  btn.disabled = true; st.textContent = 'Отправляем…';
+  var payload = JSON.stringify({ secret: SUBMIT_SECRET, id: submissionId(), who: S.ok_name || '', entries: entries() });
+  fetch(SUBMIT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: payload })
+    .then(function (r) { return r.json(); })
+    .then(function (j) {
+      if (j && j.ok) st.textContent = 'Ответы отправлены (' + j.rows + ' строк). Можно закрыть страницу, а при правках отправить ещё раз.';
+      else st.textContent = 'Не удалось отправить: ' + ((j && j.error) || 'ошибка сервера') + '. Нажмите «Собрать текст» и скопируйте ответы.';
+    })
+    .catch(function () { st.textContent = 'Не удалось отправить, проверьте интернет. Нажмите «Собрать текст» и скопируйте ответы разработчику.'; })
+    .then(function () { btn.disabled = false; });
+};
 document.getElementById('build').onclick = function () { document.getElementById('out').value = compose(); document.getElementById('copystat').textContent = 'Текст собран. Нажмите «Скопировать».'; };
 document.getElementById('copy').onclick = function () {
   var o = document.getElementById('out'); if (!o.value) o.value = compose();
