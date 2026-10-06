@@ -213,7 +213,7 @@ var SECTIONS = [
 
 /* Адрес веб-приложения Google Apps Script (из «Развернуть» → «Веб-приложение», заканчивается на /exec) и общий секрет.
    Секрет должен совпадать со значением SECRET в Code.gs. Пока адрес пустой, кнопка «Отправить» скрыта, работает копирование текста. */
-var SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbxhq2cxCn2LYJVkfyWd_6c4yRQfvSckWHsxbPj1S4tMCLZ3dLyrcCPSklLXxHBDh3-1ug/exec';
+var SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbz4kRk7dRwzUNpJaOJaIdKGHBDkHdEVKfZgrv8ovB1757JXxbrw5TrV6rVX7PHlWWcw/exec';
 var SUBMIT_SECRET = 'smenite-menya';
 var KEY = 'simple-kb-form-v1';
 var S = {};
@@ -356,8 +356,8 @@ function entries() {
         it.rows.forEach(function (r, ri) { var cells = it.cols.map(function (c, ci) { var x = S[it.id + '|' + ri + '|' + ci]; return x ? c + ' ' + x : ''; }).filter(Boolean); if (cells.length) rows.push(r + ': ' + cells.join('; ')); });
         a = rows.join('\n');
       } else {
-        a = it.t === 'multi' ? (Array.isArray(v) && v.length ? v.join('; ') : '') : (v || '');
-        var n = S[it.id + '_n']; if (n) a += (a ? ' | ' : '') + n;
+        a = it.t === 'multi' ? (Array.isArray(v) && v.length ? v.map(function (x) { return '• ' + x; }).join('\n') : '') : (v || '');
+        var n = S[it.id + '_n']; if (n) a += (a ? '\n' : '') + (it.t === 'choice' || it.t === 'multi' ? 'Уточнение: ' : '') + n;
       }
       out.push({ section: s.title, q: it.q, a: a });
     });
